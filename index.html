@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>房貸壓力測試儀表板</title>
+    <title>整批房貸試算</title>
     <style>
         :root {
             --primary: #007bff;
+            --secondary: #6c757d; /* 新增灰色變數 */
             --bg: #f4f7f6;
             --card-bg: #ffffff;
             --text: #333;
@@ -43,12 +44,12 @@
             font-size: 16px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            box-sizing: border-box; /* 確保 padding 不會撐破寬度 */
+            box-sizing: border-box; 
             background-color: #fafafa;
         }
         input:focus { border-color: var(--primary); outline: none; background: #fff; }
 
-        /* 按鈕 */
+        /* 主要按鈕 (藍色) */
         .btn-calc {
             width: 100%;
             padding: 15px;
@@ -63,6 +64,22 @@
             transition: transform 0.1s;
         }
         .btn-calc:active { transform: scale(0.98); }
+
+        /* 新增：次要按鈕 (灰色 - 回到頂端用) */
+        .btn-back {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--secondary);
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px; /* 與上方內容隔開 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .btn-back:active { transform: scale(0.98); }
 
         /* 結果儀表板 */
         #resultArea { display: none; }
@@ -132,10 +149,11 @@
                 <label>月生活費</label>
                 <input type="number" id="living" value="17000">
             </div>
-            <div class="input-group" style="flex:1">
-                <label>其他貸款/月</label>
-                <input type="number" id="otherLoan" value="0">
-            </div>
+        </div>
+        <div class="input-group" style="flex:1">
+            <label>其他貸款每月繳款金額</label>
+            <label style="font-size:12px; color:#888;">青安 無寬31749、寬2 32778、 寬5 34555</label>
+            <input type="number" id="otherLoan" value="0">
         </div>
 
         <button class="btn-calc" onclick="calculate()">開始試算</button>
@@ -145,41 +163,43 @@
         <div id="statusBox" class="status-header">
             <div id="statusTitle" style="font-size:18px; font-weight:bold;">狀態</div>
             <div id="ratioDisplay" class="ratio-display">0%</div>
-            <div style="font-size:12px;">收支比 (償付能力)</div>
+            <div style="font-size:16px;">收支比 (償付能力)</div>
         </div>
 
         <div class="result-row">
-            <span>寬限後月付</span>
+            <span style="color:#007bff;">寬限前月付 (只繳息)</span>
+            <span class="val" id="resGracePayment" style="color:#007bff;">0</span>
+        </div>
+        <div class="result-row">
+            <span>寬限後月付 (本利)</span>
             <span class="val" id="resPostGrace">0</span>
         </div>
         <div class="result-row">
-            <span>手續費估算</span>
+            <span>手續費估算(築巢免收)</span>
             <span class="val" id="resFee">0</span>
         </div>
-        <div class="result-row">
-            <span>每月總支出</span>
-            <span class="val" id="resTotalOut">0</span>
-        </div>
-
+        
         <div style="margin-top: 20px;">
-            <strong style="color: #007bff;">ℹ️ 誠信檢查紀錄</strong>
+            <strong style="color: #007bff;">檢查項目</strong>
             <table class="check-table">
                 <tr>
-                    <th>項目</th><th>承諾/數據</th><th>結果</th>
+                    <th>寬限期</th><th>利率底限</th><th>其他</th>
                 </tr>
                 <tr>
-                    <td><input type="text" id="checkItem1" placeholder="項目1" style="border:none; bg:transparent; width:100%;"></td>
-                    <td><input type="text" id="checkVal1" placeholder="內容" style="border:none; width:100%;"></td>
-                    <td><input type="text" id="checkRes1" placeholder="待查" style="border:none; width:100%;"></td>
+                    <td><input type="text" id="checkItem1" placeholder="250%以上5年" style="border:none; bg:transparent; width:100%;"></td>
+                    <td><input type="text" id="checkVal1" placeholder="青安1.775/2.275" style="border:none; width:100%;"></td>
+                    <td><input type="text" id="checkRes1" placeholder="有房?有貸?" style="border:none; width:100%;"></td>
                 </tr>
                 <tr class="row-gray">
-                    <td><input type="text" id="checkItem2" placeholder="項目2" style="border:none; bg:transparent; width:100%;"></td>
-                    <td><input type="text" id="checkVal2" placeholder="內容" style="border:none; width:100%;"></td>
-                    <td><input type="text" id="checkRes2" placeholder="待查" style="border:none; width:100%;"></td>
+                    <td><input type="text" id="checkItem2" placeholder="200%以上2年" style="border:none; bg:transparent; width:100%;"></td>
+                    <td><input type="text" id="checkVal2" placeholder="2.185/2.585" style="border:none; width:100%;"></td>
+                    <td><input type="text" id="checkRes2" placeholder="自備款來源" style="border:none; width:100%;"></td>
                 </tr>
             </table>
-            <div class="note" style="text-align:right; margin-top:5px;">*資料自動儲存於手機</div>
+            <div class="note" style="text-align:right; margin-top:5px;">*小心估價成數</div>
         </div>
+
+        <button class="btn-back" onclick="scrollToTop()">試算完成，回到填寫資料處</button>
     </div>
 </div>
 
@@ -188,6 +208,11 @@
     window.onload = function() {
         loadData();
     };
+
+    // 新增：回到頂端功能
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
     function calculate() {
         // 1. 獲取輸入
@@ -217,7 +242,10 @@
         let rawFee = loanAmount * 0.001;
         let feeAmount = Math.max(rawFee, 5000);
 
-        // 月付金
+        // 新增：寬限期月付 (只繳息)
+        let gracePayment = Math.round(loanAmount * monthlyRate);
+
+        // 寬限後月付 (本利和)
         let postGracePayment = 0;
         if (monthlyRate > 0) {
             let compound = Math.pow(1 + monthlyRate, payMonths);
@@ -226,16 +254,19 @@
             postGracePayment = Math.round(loanAmount / payMonths);
         }
 
-        // 收支比
-        let totalOut = postGracePayment + living + otherLoan;
-        let ratio = (totalOut > 0) ? (monthlyIncome / totalOut) : 0;
+        // 收支比 (壓力測試：使用寬限後金額 + 生活費 + 其他貸款)
+        let totalOutForRatio = postGracePayment + living + otherLoan;
+        let ratio = (totalOutForRatio > 0) ? (monthlyIncome / totalOutForRatio) : 0;
         let ratioPct = (ratio * 100).toFixed(2);
 
         // 3. 更新 UI
         document.getElementById('resultArea').style.display = 'block';
         document.getElementById('resPostGrace').textContent = postGracePayment.toLocaleString() + " 元";
         document.getElementById('resFee').textContent = feeAmount.toLocaleString() + " 元";
-        document.getElementById('resTotalOut').textContent = totalOut.toLocaleString() + " 元";
+        
+        // 修改處：顯示寬限期月付
+        document.getElementById('resGracePayment').textContent = gracePayment.toLocaleString() + " 元";
+        
         document.getElementById('ratioDisplay').textContent = ratioPct + "%";
 
         // 4. 判斷顏色 (紅綠燈)
@@ -247,18 +278,18 @@
 
         if (ratio < 1.2) {
             box.style.backgroundColor = "#FF5809"; // 橘紅
-            title.textContent = "⚠️ 警告：建議減 2 成";
+            title.textContent = "⚠️ 注意：建議減 2 成";
         } else if (ratio < 1.4) {
             box.style.backgroundColor = "#02DF82"; // 螢光綠
             title.textContent = "⚠️ 注意：建議減 1.5 成";
-            box.style.color = "#000"; // 螢光綠配黑字比較清楚
+            box.style.color = "#000"; 
         } else if (ratio < 1.6) {
             box.style.backgroundColor = "#ffc107"; // 黃色
-            title.textContent = "⚠️ 提醒：建議減 1 成";
+            title.textContent = "⚠️ 注意：建議減 1 成";
             box.style.color = "#000";
         } else if (ratio < 1.8) {
             box.style.backgroundColor = "#dc3545"; // 紅色
-            title.textContent = "⚠️ 觀察：建議減 0.5 成";
+            title.textContent = "⚠️ 注意：建議減 0.5 成";
             box.style.color = "#fff";
         } else {
             title.textContent = "財務狀況健康";
