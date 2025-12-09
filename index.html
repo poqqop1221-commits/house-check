@@ -7,7 +7,7 @@
     <style>
         :root {
             --primary: #007bff;
-            --secondary: #6c757d;
+            --secondary: #6c757d; /* 新增灰色變數 */
             --bg: #f4f7f6;
             --card-bg: #ffffff;
             --text: #333;
@@ -38,28 +38,18 @@
         /* 輸入區塊 */
         .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 14px; color: #666; margin-bottom: 5px; }
-        
-        /* 針對輸入框的優化 */
         input[type="number"], input[type="text"] {
             width: 100%;
             padding: 12px;
-            font-size: 16px; /* 防止 iOS 自動縮放 */
+            font-size: 16px;
             border: 1px solid #ddd;
             border-radius: 8px;
             box-sizing: border-box; 
             background-color: #fafafa;
-            /* 移除瀏覽器預設的上下箭頭 */
-            -moz-appearance: textfield; 
-        }
-        /* Chrome, Safari, Edge, Opera 移除上下箭頭 */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
         }
         input:focus { border-color: var(--primary); outline: none; background: #fff; }
 
-        /* 按鈕群 */
+        /* 主要按鈕 (藍色) */
         .btn-calc {
             width: 100%;
             padding: 15px;
@@ -75,6 +65,7 @@
         }
         .btn-calc:active { transform: scale(0.98); }
 
+        /* 新增：次要按鈕 (灰色 - 回到頂端用) */
         .btn-back {
             width: 100%;
             padding: 12px;
@@ -85,7 +76,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            margin-top: 20px;
+            margin-top: 20px; /* 與上方內容隔開 */
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .btn-back:active { transform: scale(0.98); }
@@ -115,6 +106,7 @@
         .check-table td { border: 1px solid #ddd; padding: 8px; font-size: 14px; text-align: center; }
         .row-gray { background-color: #f9f9f9; }
 
+        /* 小字 */
         .note { font-size: 12px; color: #999; margin-top: 2px; }
     </style>
 </head>
@@ -122,46 +114,46 @@
 
 <div class="container">
     <div class="card">
-        <h2>🏠 整批房貸試算</h2>
+        <h2>💸 竹北分行房貸試算 🏠</h2>
         
         <div class="input-group">
             <label>貸款金額 (萬元)</label>
-            <input type="number" id="loanWan" placeholder="例：1000" inputmode="decimal">
+            <input type="number" id="loanWan" placeholder="例：1000">
         </div>
         
         <div style="display:flex; gap:10px;">
             <div class="input-group" style="flex:1">
                 <label>年限 (年)</label>
-                <input type="number" id="years" value="40" inputmode="numeric">
+                <input type="number" id="years" value="40">
             </div>
             <div class="input-group" style="flex:1">
                 <label>寬限 (年)</label>
-                <input type="number" id="graceYears" value="5" inputmode="numeric">
+                <input type="number" id="graceYears" value="5">
             </div>
         </div>
 
         <div class="input-group">
             <label>年利率 (%)</label>
-            <input type="number" id="rate" value="2.275" step="0.001" inputmode="decimal">
+            <input type="number" id="rate" value="2.275" step="0.001">
         </div>
 
         <hr style="border:0; border-top:1px dashed #ddd; margin: 15px 0;">
 
         <div class="input-group">
             <label>年收入 (萬元)</label>
-            <input type="number" id="incomeWan" placeholder="例：200" inputmode="decimal">
+            <input type="number" id="incomeWan" placeholder="例：200">
         </div>
 
         <div style="display:flex; gap:10px;">
             <div class="input-group" style="flex:1">
                 <label>月生活費</label>
-                <input type="number" id="living" value="17000" inputmode="decimal">
+                <input type="number" id="living" value="17000">
             </div>
         </div>
         <div class="input-group" style="flex:1">
             <label>其他貸款每月繳款金額</label>
             <label style="font-size:12px; color:#888;">青安 無寬31749、寬2 32778、 寬5 34555</label>
-            <input type="number" id="otherLoan" value="0" inputmode="decimal">
+            <input type="number" id="otherLoan" value="0">
         </div>
 
         <button class="btn-calc" onclick="calculate()">開始試算</button>
@@ -171,19 +163,19 @@
         <div id="statusBox" class="status-header">
             <div id="statusTitle" style="font-size:18px; font-weight:bold;">狀態</div>
             <div id="ratioDisplay" class="ratio-display">0%</div>
-            <div style="font-size:16px;">收支比 (償付能力)</div>
+            <div style="font-size:16px;">(收支比)</div>
         </div>
 
         <div class="result-row">
-            <span style="color:#007bff;">寬限前月付 (只繳息)</span>
-            <span class="val" id="resGracePayment" style="color:#007bff;">0</span>
+            <span>寬限前月付 (只繳息)</span>
+            <span class="val" id="resGracePayment">0</span>
         </div>
         <div class="result-row">
             <span>寬限後月付 (本利)</span>
             <span class="val" id="resPostGrace">0</span>
         </div>
         <div class="result-row">
-            <span>手續費估算(築巢免收)</span>
+            <span>手續費估算(築巢免收、有青安再加1萬)</span>
             <span class="val" id="resFee">0</span>
         </div>
         
@@ -195,7 +187,7 @@
                 </tr>
                 <tr>
                     <td><input type="text" id="checkItem1" placeholder="250%以上5年" style="border:none; bg:transparent; width:100%;"></td>
-                    <td><input type="text" id="checkVal1" placeholder="青安1.775/2.275" style="border:none; width:100%;"></td>
+                    <td><input type="text" id="checkVal1" placeholder="1.775/2.275" style="border:none; width:100%;"></td>
                     <td><input type="text" id="checkRes1" placeholder="有房?有貸?" style="border:none; width:100%;"></td>
                 </tr>
                 <tr class="row-gray">
@@ -204,7 +196,7 @@
                     <td><input type="text" id="checkRes2" placeholder="自備款來源" style="border:none; width:100%;"></td>
                 </tr>
             </table>
-            <div class="note" style="text-align:right; margin-top:5px;">*小心估價成數</div>
+            <div class="note" style="text-align:right; margin-top:5px;">*以自用180%試算成數</div>
         </div>
 
         <button class="btn-back" onclick="scrollToTop()">試算完成，回到填寫資料處</button>
@@ -212,15 +204,18 @@
 </div>
 
 <script>
+    // 頁面載入時，讀取上次的資料
     window.onload = function() {
         loadData();
     };
 
+    // 新增：回到頂端功能
     function scrollToTop() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function calculate() {
+        // 1. 獲取輸入
         let loanWan = Number(document.getElementById('loanWan').value);
         let years = Number(document.getElementById('years').value);
         let graceYears = Number(document.getElementById('graceYears').value);
@@ -229,11 +224,13 @@
         let living = Number(document.getElementById('living').value);
         let otherLoan = Number(document.getElementById('otherLoan').value);
 
+        // 簡易驗證
         if (!loanWan || !years || !rate || !incomeWan) {
             alert("請填寫完整資訊！");
             return;
         }
 
+        // 2. 計算邏輯
         let loanAmount = loanWan * 10000;
         let monthlyRate = rate / 100 / 12;
         let totalMonths = years * 12;
@@ -241,11 +238,14 @@
         let payMonths = totalMonths - graceMonths;
         let monthlyIncome = (incomeWan * 10000) / 12;
 
+        // 手續費
         let rawFee = loanAmount * 0.001;
         let feeAmount = Math.max(rawFee, 5000);
 
+        // 新增：寬限期月付 (只繳息)
         let gracePayment = Math.round(loanAmount * monthlyRate);
 
+        // 寬限後月付 (本利和)
         let postGracePayment = 0;
         if (monthlyRate > 0) {
             let compound = Math.pow(1 + monthlyRate, payMonths);
@@ -254,46 +254,65 @@
             postGracePayment = Math.round(loanAmount / payMonths);
         }
 
+        // 收支比 (壓力測試：使用寬限後金額 + 生活費 + 其他貸款)
         let totalOutForRatio = postGracePayment + living + otherLoan;
         let ratio = (totalOutForRatio > 0) ? (monthlyIncome / totalOutForRatio) : 0;
         let ratioPct = (ratio * 100).toFixed(2);
 
+        // 3. 更新 UI
         document.getElementById('resultArea').style.display = 'block';
         document.getElementById('resPostGrace').textContent = postGracePayment.toLocaleString() + " 元";
         document.getElementById('resFee').textContent = feeAmount.toLocaleString() + " 元";
+        
+        // 修改處：顯示寬限期月付
         document.getElementById('resGracePayment').textContent = gracePayment.toLocaleString() + " 元";
+        
         document.getElementById('ratioDisplay').textContent = ratioPct + "%";
 
+        // 4. 判斷顏色 (紅綠燈)
         let box = document.getElementById('statusBox');
         let title = document.getElementById('statusTitle');
 
-        box.style.backgroundColor = "#28a745"; 
+        // 清除舊 class
+        box.style.backgroundColor = "#28a745"; // 預設綠
 
-        if (ratio < 1.2) {
-            box.style.backgroundColor = "#FF5809"; 
+      if (ratio < 1.0) {
+            // 優先檢查 < 1.0
+            box.style.backgroundColor = "#dc3545"; // 紅色
+            title.textContent = "⚠️ 長官 借不得啊~";
+            box.style.color = "#fff";
+        } else if (ratio < 1.2) {
+            // 接著檢查 < 1.2
+            box.style.backgroundColor = "#FF5809"; // 橘紅
             title.textContent = "⚠️ 注意：建議減 2 成";
+            box.style.color = "#fff";
         } else if (ratio < 1.4) {
-            box.style.backgroundColor = "#02DF82"; 
+            box.style.backgroundColor = "#02DF82"; // 螢光綠
             title.textContent = "⚠️ 注意：建議減 1.5 成";
             box.style.color = "#000"; 
         } else if (ratio < 1.6) {
-            box.style.backgroundColor = "#ffc107"; 
+            box.style.backgroundColor = "#ffc107"; // 黃色
             title.textContent = "⚠️ 注意：建議減 1 成";
             box.style.color = "#000";
         } else if (ratio < 1.8) {
-            box.style.backgroundColor = "#dc3545"; 
+            box.style.backgroundColor = "#dc3545"; // 紅色
             title.textContent = "⚠️ 注意：建議減 0.5 成";
             box.style.color = "#fff";
         } else {
+            // > 1.8
+            box.style.backgroundColor = "#28a745"; // 綠色
             title.textContent = "財務狀況健康";
             box.style.color = "#fff";
         }
 
+        // 5. 儲存資料
         saveData();
         
+        // 捲動到結果區
         document.getElementById('resultArea').scrollIntoView({behavior: "smooth"});
     }
 
+    // --- LocalStorage 存取功能 ---
     function saveData() {
         const ids = ['loanWan', 'years', 'graceYears', 'rate', 'incomeWan', 'living', 'otherLoan', 
                      'checkItem1', 'checkVal1', 'checkRes1', 'checkItem2', 'checkVal2', 'checkRes2'];
